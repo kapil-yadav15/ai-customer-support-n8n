@@ -1,0 +1,716 @@
+{
+  "name": "Workflow 3 - Agent Assignment & Escalation",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1NEh3XBK3xBZb8LQgjgm9Ah96fim0cw-1qA-QsPwrf4g",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Tickets",
+          "mode": "name"
+        },
+        "event": "rowUpdate",
+        "options": {}
+      },
+      "id": "6c2d6dc5-b244-473e-9afd-cba0ad4d5973",
+      "name": "Google Sheets Trigger",
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -704,
+        240
+      ],
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "lJ6vweONKmmpaCnw",
+          "name": "Google Sheets Trigger account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "cond-team-empty",
+              "leftValue": "={{ $json['Assigned Team'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty"
+              }
+            },
+            {
+              "id": "cond-cat-filled",
+              "leftValue": "={{ $json.Category }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a03e7d83-ec05-46d7-9644-e841b35d1cec",
+      "name": "IF Not Already Assigned",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -480,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "c-tech",
+                    "leftValue": "={{ $json.Category }}",
+                    "rightValue": "Technical",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "c-bug",
+                    "leftValue": "={{ $json.Category }}",
+                    "rightValue": "Bug Report",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "c-bill",
+                    "leftValue": "={{ $json.Category }}",
+                    "rightValue": "Billing",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "c-sales",
+                    "leftValue": "={{ $json.Category }}",
+                    "rightValue": "Sales",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "General"
+        }
+      },
+      "id": "df46301f-5c25-43c4-b7e7-5e40981d6056",
+      "name": "Switch by Category",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        -240,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "kapilydv40@gmail.com",
+        "subject": "=New Technical Ticket Assigned - {{ $json['Ticket ID'] }}",
+        "message": "=A new ticket has been assigned to the Technical Team.<br><br><b>Ticket ID:</b> {{ $json['Ticket ID'] }}<br><b>Customer:</b> {{ $json.Customer }}<br><b>Subject:</b> {{ $json.Subject }}<br><b>Description:</b> {{ $json.Description }}<br><b>Priority:</b> {{ $json.Priority }}<br><br>Please review and respond to this ticket.",
+        "options": {}
+      },
+      "id": "107598e5-3413-4f1d-b125-2dd3a2a944e9",
+      "name": "Notify Tech Team",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "3773f98e-cea2-4895-b0cc-5a10d99769f6",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "skjf6c5B4ijgA75a",
+          "name": "My Gmail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "kapilydv40@gmail.com",
+        "subject": "=New Billing Ticket Assigned - {{ $json['Ticket ID'] }}",
+        "message": "=A new ticket has been assigned to the Billing Team.<br><br><b>Ticket ID:</b> {{ $json['Ticket ID'] }}<br><b>Customer:</b> {{ $json.Customer }}<br><b>Subject:</b> {{ $json.Subject }}<br><b>Description:</b> {{ $json.Description }}<br><b>Priority:</b> {{ $json.Priority }}<br><br>Please review and respond to this ticket.",
+        "options": {}
+      },
+      "id": "bb44b2e5-66ae-476a-bf23-bc3e85e9e167",
+      "name": "Notify Billing Team",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        160
+      ],
+      "webhookId": "283933ba-a450-4c12-a272-30f68babd247",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "skjf6c5B4ijgA75a",
+          "name": "My Gmail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "kapilydv40@gmail.com",
+        "subject": "=New Sales Ticket Assigned - {{ $json['Ticket ID'] }}",
+        "message": "=A new ticket has been assigned to the Sales Team.<br><br><b>Ticket ID:</b> {{ $json['Ticket ID'] }}<br><b>Customer:</b> {{ $json.Customer }}<br><b>Subject:</b> {{ $json.Subject }}<br><b>Description:</b> {{ $json.Description }}<br><b>Priority:</b> {{ $json.Priority }}<br><br>Please review and respond to this ticket.",
+        "options": {}
+      },
+      "id": "ea784a35-fd33-4e4d-85bf-634ce290beb7",
+      "name": "Notify Sales Team",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        320
+      ],
+      "webhookId": "c3f25ea3-f8ff-485a-9630-439a84910310",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "skjf6c5B4ijgA75a",
+          "name": "My Gmail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "kapilydv40@gmail.com",
+        "subject": "=New Ticket Assigned - {{ $json['Ticket ID'] }}",
+        "message": "=A new ticket has been added to the General Queue.<br><br><b>Ticket ID:</b> {{ $json['Ticket ID'] }}<br><b>Customer:</b> {{ $json.Customer }}<br><b>Subject:</b> {{ $json.Subject }}<br><b>Description:</b> {{ $json.Description }}<br><b>Priority:</b> {{ $json.Priority }}<br><br>Please review and respond to this ticket.",
+        "options": {}
+      },
+      "id": "b1716df2-d4d7-486e-9e7b-c1169e2d4264",
+      "name": "Notify General Queue",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        480
+      ],
+      "webhookId": "d8f1c246-f41a-4ca0-bfb3-5af65b06e9f9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "skjf6c5B4ijgA75a",
+          "name": "My Gmail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1NEh3XBK3xBZb8LQgjgm9Ah96fim0cw-1qA-QsPwrf4g",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Tickets",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Assigned Team": "={{ $('Switch by Category').item.json.Category === 'Technical' || $('Switch by Category').item.json.Category === 'Bug Report' ? 'Technical Team' : $('Switch by Category').item.json.Category === 'Billing' ? 'Billing Team' : $('Switch by Category').item.json.Category === 'Sales' ? 'Sales Team' : 'General Queue' }}",
+            "row_number": 0,
+            "Ticket ID": "={{ $('Switch by Category').item.json['Ticket ID'] }}"
+          },
+          "matchingColumns": [
+            "Ticket ID"
+          ],
+          "schema": [
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer",
+              "displayName": "Customer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Assigned Team",
+              "displayName": "Assigned Team",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "b4c5e591-c6f4-448c-8687-fa98975b7ead",
+      "name": "Update Assigned Team",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        240,
+        240
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "38uQr4ff5a2PX7Pq",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "cond-high-priority",
+              "leftValue": "={{ $('Switch by Category').item.json.Priority }}",
+              "rightValue": "High",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "894067db-4cae-43fd-acf6-f7228f19bc29",
+      "name": "IF High Priority",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        464,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "kapilydv40@gmail.com",
+        "subject": "=URGENT: High Priority Ticket - {{ $('Switch by Category').item.json['Ticket ID'] }}",
+        "message": "=A HIGH PRIORITY ticket needs immediate attention.<br><br><b>Ticket ID:</b> {{ $('Switch by Category').item.json['Ticket ID'] }}<br><b>Customer:</b> {{ $('Switch by Category').item.json.Customer }}<br><b>Subject:</b> {{ $('Switch by Category').item.json.Subject }}<br><b>Description:</b> {{ $('Switch by Category').item.json.Description }}<br><b>Category:</b> {{ $('Switch by Category').item.json.Category }}<br><br>Please ensure this is handled urgently.",
+        "options": {}
+      },
+      "id": "c02babc8-a096-4514-ab8b-4cda36f0500a",
+      "name": "Notify Manager",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        736,
+        224
+      ],
+      "webhookId": "4f63f452-6f15-4f6b-9e8a-f4782f80f847",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "skjf6c5B4ijgA75a",
+          "name": "My Gmail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Workflow 3: Agent Assignment & Escalation\n\nThis workflow routes each classified ticket to the correct team (Technical, Billing, Sales, or General) based on its Category, notifies that team by email, and sends an additional urgent alert to the manager if the ticket's Priority is High.",
+        "width": 512,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -960,
+        -160
+      ],
+      "id": "0bbaefa0-88a8-48f3-871b-2746dd82df4d",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "Trigger: Ticket Classified\nFires when a ticket's Category/Priority \nfields are updated by Workflow 2."
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -992,
+        224
+      ],
+      "id": "d407b5f2-845f-4940-bb05-af7a5728a081",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "Category Router\nRoutes the ticket to one of four branches based on its AI-assigned Category.",
+        "height": 112,
+        "width": 224
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        64
+      ],
+      "id": "2986657b-78ea-4c42-aabc-39580c8e3d40",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "Team Notification\nSends an email to the relevant team's inbox \nwith the ticket's full details for action.",
+        "height": 128,
+        "width": 224
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -144
+      ],
+      "id": "557f06f5-3fe9-4c9b-a54d-c1cb276a62ce",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "Assignment Record\nUpdates the \"Assigned Team\" column so the \nticket shows which team owns it.",
+        "height": 128,
+        "width": 224
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        208,
+        96
+      ],
+      "id": "a74ca73b-1d33-458f-89c4-d0c9b5448e25",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "Escalation Check\nIf Priority = High, an additional urgent \nalert email is sent directly to the manager."
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        400,
+        368
+      ],
+      "id": "c3563618-d812-4c43-b1c8-0e301ac3abc1",
+      "name": "Sticky Note5"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "IF Not Already Assigned",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Not Already Assigned": {
+      "main": [
+        [
+          {
+            "node": "Switch by Category",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch by Category": {
+      "main": [
+        [
+          {
+            "node": "Notify Tech Team",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify Billing Team",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify Sales Team",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify General Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Tech Team": {
+      "main": [
+        [
+          {
+            "node": "Update Assigned Team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Billing Team": {
+      "main": [
+        [
+          {
+            "node": "Update Assigned Team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Sales Team": {
+      "main": [
+        [
+          {
+            "node": "Update Assigned Team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify General Queue": {
+      "main": [
+        [
+          {
+            "node": "Update Assigned Team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Assigned Team": {
+      "main": [
+        [
+          {
+            "node": "IF High Priority",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF High Priority": {
+      "main": [
+        [
+          {
+            "node": "Notify Manager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "9f365bb1-c60e-42b5-aed8-f88ef918c7e2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6f13536d6ab4e829037894aa64fdf3d19daed781a509d7c11603b3300fe05489"
+  },
+  "nodeGroups": [],
+  "id": "9603EIihGj6e6HWU",
+  "tags": []
+}

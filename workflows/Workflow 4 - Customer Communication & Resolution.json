@@ -1,0 +1,463 @@
+{
+  "name": "Workflow 4 - Customer Communication & Resolution",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1NEh3XBK3xBZb8LQgjgm9Ah96fim0cw-1qA-QsPwrf4g",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Tickets",
+          "mode": "name"
+        },
+        "event": "rowUpdate",
+        "options": {}
+      },
+      "id": "47bb74ab-373d-43c9-924b-a6649a6118f7",
+      "name": "Google Sheets Trigger",
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1728,
+        -144
+      ],
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "lJ6vweONKmmpaCnw",
+          "name": "Google Sheets Trigger account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "cond-status-resolved",
+              "leftValue": "={{ $json.Status }}",
+              "rightValue": "Resolved",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "904f5734-2162-4ca6-81dc-8d3d18212f39",
+      "name": "IF Status Is Resolved",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -1504,
+        -144
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Google Sheets Trigger').item.json.Email }}",
+        "subject": "=Your Support Ticket Has Been Resolved - {{ $('Google Sheets Trigger').item.json['Ticket ID'] }}",
+        "message": "=Dear {{ $('Google Sheets Trigger').item.json.Customer }},<br><br>We are pleased to inform you that your support ticket has been resolved.<br><br><b>Ticket ID:</b> {{ $('Google Sheets Trigger').item.json['Ticket ID'] }}<br><b>Subject:</b> {{ $('Google Sheets Trigger').item.json.Subject }}<br><b>Original Request:</b> {{ $('Google Sheets Trigger').item.json.Description }}<br><br>If you have any further questions or if the issue persists, please do not hesitate to reach out to us, and we will be happy to assist you further.<br><br>Thank you for your patience and for allowing us the opportunity to resolve this matter.<br><br>Warm regards,<br>Customer Support Team",
+        "options": {}
+      },
+      "id": "f602fd9d-2e26-4bde-a409-d65fe17f2d3b",
+      "name": "Send Resolution Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -1264,
+        -240
+      ],
+      "webhookId": "d5c213f5-1ef8-45ec-b95b-41de5d4db0a0",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "skjf6c5B4ijgA75a",
+          "name": "My Gmail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "id": "b469e784-a58c-46d1-8e76-688639b47632",
+      "name": "Wait Before Feedback Request",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -1040,
+        -240
+      ],
+      "webhookId": "a8c6f884-3dca-4f28-8a9a-a91cae251304"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Google Sheets Trigger').item.json.Email }}",
+        "subject": "=We'd Love Your Feedback - {{ $('Google Sheets Trigger').item.json['Ticket ID'] }}",
+        "message": "=Dear {{ $('Google Sheets Trigger').item.json.Customer }},<br><br>We hope your recent support experience was a positive one. Your feedback helps us continue to improve the quality of service we provide.<br><br><b>Ticket ID:</b> {{ $('Google Sheets Trigger').item.json['Ticket ID'] }}<br><b>Subject:</b> {{ $('Google Sheets Trigger').item.json.Subject }}<br><br>Could you please take a moment to rate your experience and share any comments? Simply reply to this email with:<br><br>1. A rating from 1 (Poor) to 5 (Excellent)<br>2. Any additional feedback you would like to share<br><br>Thank you for choosing us, and we look forward to hearing from you.<br><br>Warm regards,<br>Customer Support Team",
+        "options": {}
+      },
+      "id": "3e129215-4bd5-429b-9938-11d8ba844f8f",
+      "name": "Send Feedback Request",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -832,
+        -240
+      ],
+      "webhookId": "fbbee40c-9643-46fb-a0d2-0fc7afb29cff",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "skjf6c5B4ijgA75a",
+          "name": "My Gmail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1NEh3XBK3xBZb8LQgjgm9Ah96fim0cw-1qA-QsPwrf4g",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Tickets",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Ticket ID": "={{ $('Google Sheets Trigger').item.json['Ticket ID'] }}",
+            "Status": "Resolved - Notified",
+            "row_number": 0
+          },
+          "matchingColumns": [
+            "Ticket ID"
+          ],
+          "schema": [
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer",
+              "displayName": "Customer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Assigned Team",
+              "displayName": "Assigned Team",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "60b76d6e-c7fc-4174-a31a-8577329da8bd",
+      "name": "Mark As Notified",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -608,
+        -240
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "38uQr4ff5a2PX7Pq",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Workflow 4: Customer Communication & Resolution\n\nThis workflow triggers when a support agent manually marks a ticket's Status as \"Resolved\". It sends the customer a resolution email, waits, then follows up with a feedback request — closing the loop on the support experience.",
+        "width": 528,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1904,
+        -448
+      ],
+      "id": "315435a4-b92f-4b8e-9f19-1a11508e2642",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "Trigger: Status Updated\nWatches for any row update in the \n\"Tickets\" sheet.",
+        "height": 112,
+        "width": 208
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1792,
+        0
+      ],
+      "id": "b15064f7-10b0-40d4-87fd-e65e8ad86856",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "Resolution Check\nOnly proceeds if the agent has set Status = \"Resolved\" for this ticket.",
+        "height": 112
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1536,
+        0
+      ],
+      "id": "ab794288-da49-41a2-8db1-4106b6357a19",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "Resolution Notification\nInforms the customer that their issue has been resolved, referencing their Ticket ID.",
+        "height": 128
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1312,
+        -368
+      ],
+      "id": "2c52875d-eeee-4630-99ee-c3339d8e13f8",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "Delay Before Follow-up\nWaits a set period (e.g. 24 hours) before asking the customer for feedback.",
+        "height": 112
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1104,
+        -96
+      ],
+      "id": "b65269d2-7e53-429a-b21d-bf4c65884924",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "Feedback Request\nAsks the customer to rate their experience and share any additional comments.",
+        "height": 128
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -912,
+        -368
+      ],
+      "id": "9e156867-7bb2-41eb-a022-f7ddf88c2fe5",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "Prevent Duplicate Sends\nMarks the ticket \"Resolved - Notified\" so this workflow doesn't re-trigger on it.",
+        "height": 112,
+        "width": 256
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -672,
+        -96
+      ],
+      "id": "9e302f18-005e-416d-a4b9-20f9c77ebf9e",
+      "name": "Sticky Note6"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "IF Status Is Resolved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Status Is Resolved": {
+      "main": [
+        [
+          {
+            "node": "Send Resolution Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Resolution Email": {
+      "main": [
+        [
+          {
+            "node": "Wait Before Feedback Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Before Feedback Request": {
+      "main": [
+        [
+          {
+            "node": "Send Feedback Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Feedback Request": {
+      "main": [
+        [
+          {
+            "node": "Mark As Notified",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "58a74933-e9cf-45bd-afe4-90be9ebe7410",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6f13536d6ab4e829037894aa64fdf3d19daed781a509d7c11603b3300fe05489"
+  },
+  "nodeGroups": [],
+  "id": "FalTvXwOpU19YK88",
+  "tags": []
+}

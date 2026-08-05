@@ -1,0 +1,485 @@
+{
+  "name": "Workflow 5 - Feedback & Analytics",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "feedback-collection",
+        "options": {}
+      },
+      "id": "fa4e5736-ba21-49ee-9d16-03050d7e6c75",
+      "name": "Feedback Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        16,
+        64
+      ],
+      "webhookId": "feedback-collection-webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f1",
+              "name": "TicketID",
+              "value": "={{ $json.body.ticketId }}",
+              "type": "string"
+            },
+            {
+              "id": "f2",
+              "name": "Rating",
+              "value": "={{ $json.body.rating }}",
+              "type": "string"
+            },
+            {
+              "id": "f3",
+              "name": "Feedback",
+              "value": "={{ $json.body.feedback }}",
+              "type": "string"
+            },
+            {
+              "id": "f4",
+              "name": "Date",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "59037d2d-2c6a-4984-b07e-35883298749e",
+      "name": "Prepare Feedback Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        256,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1NEh3XBK3xBZb8LQgjgm9Ah96fim0cw-1qA-QsPwrf4g",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Feedback",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Ticket ID": "={{ $json.TicketID }}",
+            "Rating": "={{ $json.Rating }}",
+            "Feedback": "={{ $json.Feedback }}",
+            "Date": "={{ $json.Date }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Rating",
+              "displayName": "Rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Feedback",
+              "displayName": "Feedback",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "83db983f-6fa0-4bfb-8cdd-3a7cf98b9626",
+      "name": "Store Feedback in Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        528,
+        64
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "38uQr4ff5a2PX7Pq",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "id": "ebc5fb78-19d6-4077-82a9-684ed11592a1",
+      "name": "Weekly Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1NEh3XBK3xBZb8LQgjgm9Ah96fim0cw-1qA-QsPwrf4g",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Feedback",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "808903fb-bc5a-4f5a-89c7-bf3de4858b74",
+      "name": "Read All Feedback",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        304
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "38uQr4ff5a2PX7Pq",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1NEh3XBK3xBZb8LQgjgm9Ah96fim0cw-1qA-QsPwrf4g",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Tickets",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "49d430d2-55b3-4a35-a807-85337b8742f3",
+      "name": "Read All Tickets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        448
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "38uQr4ff5a2PX7Pq",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "a257988c-3547-4eb0-98ee-b4cc18f43483",
+      "name": "Merge Tickets and Feedback",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        448,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Aggregate ticket and feedback data into a summary for the AI report\nconst allItems = $input.all();\n\n// Separate tickets and feedback based on which fields are present\nconst tickets = allItems.filter(i => i.json['Ticket ID'] && i.json.Category !== undefined);\nconst feedbackEntries = allItems.filter(i => i.json.Rating !== undefined);\n\nconst totalTickets = tickets.length;\nconst categoryCounts = {};\nconst priorityCounts = {};\nlet resolvedCount = 0;\n\nfor (const t of tickets) {\n  const cat = t.json.Category || 'Uncategorized';\n  const pri = t.json.Priority || 'Unspecified';\n  categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;\n  priorityCounts[pri] = (priorityCounts[pri] || 0) + 1;\n  if ((t.json.Status || '').toString().toLowerCase().includes('resolved')) {\n    resolvedCount++;\n  }\n}\n\nconst ratings = feedbackEntries\n  .map(f => parseFloat(f.json.Rating))\n  .filter(r => !isNaN(r));\nconst avgRating = ratings.length ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(2) : 'N/A';\n\nconst summaryText = `\nTotal Tickets: ${totalTickets}\nResolved Tickets: ${resolvedCount}\nCategory Breakdown: ${JSON.stringify(categoryCounts)}\nPriority Breakdown: ${JSON.stringify(priorityCounts)}\nTotal Feedback Received: ${feedbackEntries.length}\nAverage Rating: ${avgRating}\n`;\n\nreturn [{\n  json: {\n    summaryText,\n    totalTickets,\n    resolvedCount,\n    avgRating,\n    feedbackCount: feedbackEntries.length\n  }\n}];"
+      },
+      "id": "b2fa4db0-1e72-4f62-a97f-d0ed5a0e2966",
+      "name": "Aggregate Weekly Stats",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "kapilydv40@gmail.com",
+        "subject": "=Weekly Support Analytics Report - {{ $now.format('dd LLL yyyy') }}",
+        "message": "=Dear Manager,<br><br>Please find below the automated weekly support performance summary.<br><br><b>Key Statistics:</b><br>Total Tickets: {{ $('Aggregate Weekly Stats').item.json.totalTickets }}<br>Resolved Tickets: {{ $('Aggregate Weekly Stats').item.json.resolvedCount }}<br>Feedback Responses: {{ $('Aggregate Weekly Stats').item.json.feedbackCount }}<br>Average Rating: {{ $('Aggregate Weekly Stats').item.json.avgRating }} / 5<br><br><b>AI-Generated Summary:</b><br>{{ $json.output ? $json.output[0].content[0].text : $json.message.content }}<br><br>Best regards,<br>Automated Analytics System",
+        "options": {}
+      },
+      "id": "55b05cc6-c7f7-4017-b80f-bf33e59efb10",
+      "name": "Email Weekly Report to Manager",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1232,
+        384
+      ],
+      "webhookId": "6fadbcf7-d696-45d8-98ad-4ca7816c69a0",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "skjf6c5B4ijgA75a",
+          "name": "My Gmail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "llama-3.3-70b-versatile",
+          "mode": "id"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=You are a customer support analytics assistant. Write a short, professional weekly summary report for a support manager based on the statistics provided. Keep it concise (4-6 sentences), highlight any concerns (e.g. low ratings, high unresolved volume), and end with one actionable recommendation."
+            },
+            {
+              "content": "=Here are this week's support statistics:\n\n{{ $json.summaryText }}\n\nWrite the weekly summary report."
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "store": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        864,
+        384
+      ],
+      "id": "41a519f1-b6a8-44fb-b45a-87b0d7c9ed36",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "LI7AKoUggNZpTlCK",
+          "name": "Groq Free"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Workflow 5: Feedback & Analytics\n\nThis workflow has two independent triggers. The Webhook branch \nlogs incoming customer feedback to the \"Feedback\" sheet. The Weekly Schedule branch reads all ticket and feedback data, aggregates statistics, generates an AI-written summary, and emails a weekly performance report to the manager.",
+        "height": 192,
+        "width": 544,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        -176
+      ],
+      "id": "547c42c9-adae-4885-af58-9e938cd3f704",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "Manager Report\nEmails the AI-generated weekly summary \ndirectly to the support manager."
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1152,
+        224
+      ],
+      "id": "b9f9165d-f4d0-4a10-a1ba-c7944df55552",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "Statistics Engine\nCalculates total tickets, resolution rate, category/priority breakdowns, and average customer rating.",
+        "height": 128,
+        "width": 304
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        624,
+        512
+      ],
+      "id": "8c615efa-05fb-43e6-82c7-583ee6c0b972",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "Trigger: Weekly Cron\nAutomatically runs every Monday at \n9:00 AM — no manual action needed."
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -304,
+        304
+      ],
+      "id": "c03876ea-f1bc-4915-8f20-67c8e0073711",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "Feedback Logging\nFormats and appends the feedback as a new row in the \"Feedback\" sheet.",
+        "width": 176
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        240,
+        -96
+      ],
+      "id": "7bb9ebcc-2377-45f5-b6ec-d1b75e61d479",
+      "name": "Sticky Note4"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Feedback Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Prepare Feedback Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Feedback Data": {
+      "main": [
+        [
+          {
+            "node": "Store Feedback in Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read All Feedback",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read All Tickets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read All Feedback": {
+      "main": [
+        [
+          {
+            "node": "Merge Tickets and Feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read All Tickets": {
+      "main": [
+        [
+          {
+            "node": "Merge Tickets and Feedback",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Tickets and Feedback": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Weekly Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Weekly Stats": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Email Weekly Report to Manager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "a43c43e3-94de-40fa-bda2-e04a665905fd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6f13536d6ab4e829037894aa64fdf3d19daed781a509d7c11603b3300fe05489"
+  },
+  "nodeGroups": [],
+  "id": "7INVm761XKRNFDa0",
+  "tags": []
+}

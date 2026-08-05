@@ -1,0 +1,427 @@
+{
+  "name": "Workflow 2 - AI Ticket Classification & Prioritization",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1NEh3XBK3xBZb8LQgjgm9Ah96fim0cw-1qA-QsPwrf4g",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Tickets",
+          "mode": "name"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "id": "d15394d8-4525-4b5c-8bc4-c8ee7165d05a",
+      "name": "Google Sheets Trigger",
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        0
+      ],
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "lJ6vweONKmmpaCnw",
+          "name": "Google Sheets Trigger account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "cond-cat-empty",
+              "leftValue": "={{ $json.Category }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "f2219116-cb31-42e5-aeae-929a0706149a",
+      "name": "IF Not Already Classified",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -256,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the AI response text from the new node's output structure\nconst item = $input.first().json;\nlet raw = '';\n\nif (item.output && item.output[0] && item.output[0].content) {\n  raw = item.output[0].content[0].text || '';\n} else if (item.message?.content) {\n  raw = item.message.content;\n} else if (item.text) {\n  raw = item.text;\n}\n\nlet cleaned = raw.trim();\ncleaned = cleaned.replace(/^```json\\s*/i, '').replace(/^```\\s*/i, '').replace(/```\\s*$/i, '').trim();\n\nlet parsed;\ntry {\n  parsed = JSON.parse(cleaned);\n} catch (e) {\n  parsed = {\n    category: 'General',\n    priority: 'Medium',\n    sentiment: 'Neutral',\n    reason: 'Could not parse AI response'\n  };\n}\n\nreturn [{\n  json: {\n    TicketID: $('Google Sheets Trigger').item.json['Ticket ID'],\n    Category: parsed.category,\n    Priority: parsed.priority,\n    Sentiment: parsed.sentiment,\n    Reason: parsed.reason\n  }\n}];"
+      },
+      "id": "a159b5f5-5c62-4f50-935b-c6232beb65cd",
+      "name": "Parse AI Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        288,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1NEh3XBK3xBZb8LQgjgm9Ah96fim0cw-1qA-QsPwrf4g",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Tickets",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Ticket ID": "={{ $json.TicketID }}",
+            "Category": "={{ $json.Category }}",
+            "Priority": "={{ $json.Priority }}",
+            "row_number": 0
+          },
+          "matchingColumns": [
+            "Ticket ID"
+          ],
+          "schema": [
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer",
+              "displayName": "Customer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Assigned Team",
+              "displayName": "Assigned Team",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "41eddfc5-1e74-4341-88bb-9477531836e9",
+      "name": "Update Ticket in Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        528,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3yeaTuaUCHpeDVsE",
+          "name": "My Google Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "llama-3.3-70b-versatile",
+          "mode": "id"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are a support ticket classification assistant. You must respond with ONLY valid JSON, no markdown, no explanations, no code fences. The JSON must have exactly these keys: category, priority, sentiment, reason. category must be one of: Technical, Billing, Sales, General, Bug Report. priority must be one of: High, Medium, Low. sentiment must be one of: Positive, Neutral, Negative. reason must be a short one-sentence explanation."
+            },
+            {
+              "content": "=Classify this support request.\n\nSubject: {{ $json.Subject }}\nDescription: {{ $json.Description }}\n\nRespond with JSON only in this exact format:\n{\"category\": \"\", \"priority\": \"\", \"sentiment\": \"\", \"reason\": \"\"}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "store": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        -32,
+        -16
+      ],
+      "id": "62ab78df-b50f-4022-ab16-6f1125e93ce2",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "LI7AKoUggNZpTlCK",
+          "name": "Groq Free"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Workflow 2: AI Ticket Classification & Prioritization\n\nThis workflow is triggered when a new ticket appears. It sends the ticket details to a Groq LLM (Llama 3.3), which analyzes the request and returns a Category, Priority, Sentiment, and Reason. The ticket row is then updated with the AI's classification.",
+        "height": 192,
+        "width": 592,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -672,
+        -464
+      ],
+      "id": "ac683364-f92e-4962-8b33-80873badf6d1",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "Trigger: New Ticket\nWatches the \"Tickets\" sheet for newly added rows and starts processing."
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -704,
+        -64
+      ],
+      "id": "14d438df-3be1-4d38-a4f1-1b50b8ac7051",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "Duplicate Prevention\nEnsures a ticket is only classified once, even if the trigger fires multiple times.",
+        "height": 112
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        -128
+      ],
+      "id": "c9979a72-31f7-4a09-bc74-8a83b65005bf",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "AI Classification\nGroq LLM reads the Subject and Description, then returns structured JSON with Category, Priority, Sentiment, and a short Reason.",
+        "width": 288
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        -192
+      ],
+      "id": "b7969571-9f08-4577-909b-abd46eb108a3",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "Response Parser\nSafely parses the AI's JSON output, with a fallback to safe defaults if parsing fails.",
+        "height": 128
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        240,
+        128
+      ],
+      "id": "ba0d2514-4182-4e6f-a3c8-e1a7afcb93ec",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "Database Update\nWrites the AI-generated Category and Priority back into the ticket's row.",
+        "height": 112,
+        "width": 224
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        480,
+        -128
+      ],
+      "id": "657e703d-43cf-4cc7-b3f1-f3ab81940f76",
+      "name": "Sticky Note5"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "IF Not Already Classified",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Response": {
+      "main": [
+        [
+          {
+            "node": "Update Ticket in Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Not Already Classified": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "f44e1df8-1952-412b-97fe-f3a00f530fcb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6f13536d6ab4e829037894aa64fdf3d19daed781a509d7c11603b3300fe05489"
+  },
+  "nodeGroups": [],
+  "id": "EqUBjLDypbQbKSss",
+  "tags": []
+}

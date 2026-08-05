@@ -1,0 +1,576 @@
+{
+  "name": "Workflow 1 - Ticket Collection & Registration",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "support-ticket",
+        "options": {}
+      },
+      "id": "6df6487e-69e1-43be-933a-902a2a25d1be",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -704,
+        96
+      ],
+      "webhookId": "support-ticket-webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "TicketID",
+              "value": "={{ 'TCK-' + $now.format('yyyyMMddHHmmss') }}",
+              "type": "string"
+            },
+            {
+              "id": "a2",
+              "name": "CustomerName",
+              "value": "={{ $json.body.name || $json.body.customerName }}",
+              "type": "string"
+            },
+            {
+              "id": "a3",
+              "name": "Email",
+              "value": "={{ $json.body.email }}",
+              "type": "string"
+            },
+            {
+              "id": "a4",
+              "name": "Subject",
+              "value": "={{ $json.body.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "a5",
+              "name": "Description",
+              "value": "={{ $json.body.description }}",
+              "type": "string"
+            },
+            {
+              "id": "a6",
+              "name": "Status",
+              "value": "Open",
+              "type": "string"
+            },
+            {
+              "id": "a7",
+              "name": "Date",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            },
+            {
+              "id": "a8",
+              "name": "Attachment",
+              "value": "={{ $json.body.attachment || '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "54d6947f-6d92-4000-a546-13c5dfe9048c",
+      "name": "Prepare Ticket Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -480,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "cond1",
+              "leftValue": "={{ $json.Attachment }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "e245ff2a-b6fc-4430-82d0-1a1b97d72ebc",
+      "name": "IF Attachment Exists",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "=1NEh3XBK3xBZb8LQgjgm9Ah96fim0cw-1qA-QsPwrf4g",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Tickets",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Ticket ID": "={{ $('Prepare Ticket Data').item.json.TicketID }}",
+            "Customer": "={{ $('Prepare Ticket Data').item.json.CustomerName }}",
+            "Email": "={{ $('Prepare Ticket Data').item.json.Email }}",
+            "Subject": "={{ $('Prepare Ticket Data').item.json.Subject }}",
+            "Description": "={{ $('Prepare Ticket Data').item.json.Description }}",
+            "Status": "={{ $('Prepare Ticket Data').item.json.Status }}",
+            "Date": "={{ $('Prepare Ticket Data').item.json.Date }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer",
+              "displayName": "Customer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Assigned Team",
+              "displayName": "Assigned Team",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "4dd30d36-f5d5-450f-b07f-d995d732d504",
+      "name": "Store Ticket in Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        16,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3yeaTuaUCHpeDVsE",
+          "name": "My Google Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1NEh3XBK3xBZb8LQgjgm9Ah96fim0cw-1qA-QsPwrf4g",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "=Tickets",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Ticket ID": "={{ $('Prepare Ticket Data').item.json.TicketID }}",
+            "Customer": "={{ $('Prepare Ticket Data').item.json.CustomerName }}",
+            "Email": "={{ $('Prepare Ticket Data').item.json.Email }}",
+            "Subject": "={{ $('Prepare Ticket Data').item.json.Subject }}",
+            "Description": "={{ $('Prepare Ticket Data').item.json.Description }}",
+            "Status": "={{ $('Prepare Ticket Data').item.json.Status }}",
+            "Date": "={{ $('Prepare Ticket Data').item.json.Date }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer",
+              "displayName": "Customer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Assigned Team",
+              "displayName": "Assigned Team",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "03307610-2f9f-41ce-b89a-8cb5ac845f9b",
+      "name": "Store Ticket (With Attachment Note)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        32,
+        192
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3yeaTuaUCHpeDVsE",
+          "name": "My Google Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Prepare Ticket Data').item.json.Email }}",
+        "subject": "=We received your support request - {{ $('Prepare Ticket Data').item.json.TicketID }}",
+        "message": "=Hi {{ $('Prepare Ticket Data').item.json.CustomerName }},<br><br>Thank you for contacting our support team. Your ticket has been registered successfully.<br><br><b>Ticket ID:</b> {{ $('Prepare Ticket Data').item.json.TicketID }}<br><b>Subject:</b> {{ $('Prepare Ticket Data').item.json.Subject }}<br><br>Our team will review your request and get back to you shortly.<br><br>Regards,<br>Support Team",
+        "options": {}
+      },
+      "id": "1526ec47-2e74-42ce-a979-51651453e783",
+      "name": "Send Confirmation Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        320,
+        96
+      ],
+      "webhookId": "c026583d-2339-431b-b8fd-1a73ea635294",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "skjf6c5B4ijgA75a",
+          "name": "My Gmail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Workflow 1: Ticket Collection & Registration\n\nThis workflow receives customer support requests via webhook, generates a unique Ticket ID, stores the ticket in Google Sheets, and sends a confirmation email to the customer. It serves as the entry point of the AI Customer Support Platform.",
+        "height": 176,
+        "width": 496,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1008,
+        -288
+      ],
+      "id": "dac15253-ebea-4507-99a0-a6e181f63fc3",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "Webhook Trigger\nReceives incoming support ticket data (name, email, \nsubject, description) via POST request."
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -960,
+        80
+      ],
+      "id": "8037f4f8-e90f-4477-b93d-67d041d6759d",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "Prepare Ticket Data\nGenerates a unique Ticket ID using timestamp, \nsets Status = \"Open\", and formats all fields."
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        -32
+      ],
+      "id": "93ffef4d-0792-48c9-b198-5d48167ab932",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "Attachment Check\nBranches based on whether the customer \nincluded an attachment with the ticket."
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        224
+      ],
+      "id": "8fc5c249-ddcf-491c-a473-18fd0dbcc09f",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "Ticket Storage\nAppends the new ticket as a row in the \n\"Tickets\" sheet — this is the central database."
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        -144
+      ],
+      "id": "fdd74aa4-7918-4119-be61-411c1f4a17c9",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "Confirmation Email\nSends an automated acknowledgement email \nto the customer with their Ticket ID."
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        272,
+        -80
+      ],
+      "id": "4e6d4d80-26be-449b-951f-ba72cab5eb83",
+      "name": "Sticky Note5"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Prepare Ticket Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Ticket Data": {
+      "main": [
+        [
+          {
+            "node": "IF Attachment Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Attachment Exists": {
+      "main": [
+        [
+          {
+            "node": "Store Ticket (With Attachment Note)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Store Ticket in Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Ticket in Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Send Confirmation Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Ticket (With Attachment Note)": {
+      "main": [
+        [
+          {
+            "node": "Send Confirmation Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "c1d5cc5e-9ab4-46d2-9c50-433d8d2af1ca",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6f13536d6ab4e829037894aa64fdf3d19daed781a509d7c11603b3300fe05489"
+  },
+  "nodeGroups": [],
+  "id": "vOENktQMX2QEzO9G",
+  "tags": []
+}
