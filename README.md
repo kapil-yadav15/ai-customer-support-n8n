@@ -130,14 +130,6 @@ Two independent triggers in one workflow:
 ├── AI_Customer_Support_Automation_Project_Report.docx
 ├── AI_Customer_Support_Automation_Presentation.pptx
 └── README.md
-```
-
----
-
-## 🎥 Demo Video
-
-📺 [Watch the demo](#) — *(add your video link here after recording)*
-
 ---
 
 ## 📄 Documentation
